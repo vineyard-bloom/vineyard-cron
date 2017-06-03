@@ -1,6 +1,6 @@
 {
   "name": "vineyard-cron",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Simple library for long running Node.js services",
   "main": "source/cron.js",
   "types": "source/cron.d.ts",
