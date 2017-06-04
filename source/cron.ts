@@ -13,20 +13,33 @@ export interface Task {
   action: Action
 }
 
+export interface CronErrorLogger {
+  logError(error): Promise<any> | void
+}
+
+class DefaultErrorLogger implements CronErrorLogger {
+  logError(error) {
+    console.error(error.stack || error.message)
+  }
+}
+
 export class Cron {
   private tasks: Task[]
   private interval: number
   private status: Status = Status.inactive
+  private errorLogger: CronErrorLogger
 
-  constructor(tasks: Task[], interval: number = 30000) {
+  constructor(tasks: Task[], interval: number = 30000, errorLogger: CronErrorLogger = new DefaultErrorLogger()) {
     this.tasks = tasks;
     this.interval = interval
+    this.errorLogger = errorLogger
   }
 
   private runTask(task: Task) {
     return task.action()
       .catch(error => {
-        console.error("Error during task '" + task.name + "'", error, error.stack);
+        error.message = "Error during task '" + task.name + "': " + error.message
+        this.errorLogger.logError(error)
       })
   }
 
@@ -50,7 +63,7 @@ export class Cron {
       this.update()
         .then(loop)
         .catch(error => {
-          console.error("Error during cron.", error, error.stack);
+          this.errorLogger.logError(error)
           loop()
         })
     }
