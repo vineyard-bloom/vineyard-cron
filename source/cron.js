@@ -20,6 +20,7 @@ var Cron = (function () {
         if (interval === void 0) { interval = 30000; }
         if (errorLogger === void 0) { errorLogger = new DefaultErrorLogger(); }
         this.status = Status.inactive;
+        this.isWorking = false;
         this.tasks = tasks;
         this.interval = interval;
         this.errorLogger = errorLogger;
@@ -34,7 +35,9 @@ var Cron = (function () {
     };
     Cron.prototype.update = function () {
         var _this = this;
-        return promise_each2_1.each(this.tasks, function (task) { return _this.runTask(task); });
+        this.isWorking = true;
+        return promise_each2_1.each(this.tasks, function (task) { return _this.runTask(task); })
+            .then(function () { return _this.isWorking = false; });
     };
     Cron.prototype.start = function () {
         var _this = this;
@@ -58,7 +61,25 @@ var Cron = (function () {
         this.status = Status.running;
     };
     Cron.prototype.stop = function () {
-        this.status = Status.stopping;
+        var _this = this;
+        if (!this.isWorking) {
+            this.status = Status.inactive;
+            return Promise.resolve();
+        }
+        else {
+            this.status = Status.stopping;
+            return new Promise(function (resolve, reject) {
+                var poll = function () {
+                    if (_this.status == Status.inactive) {
+                        resolve();
+                    }
+                    else {
+                        setTimeout(poll, 100);
+                    }
+                };
+                poll();
+            });
+        }
     };
     return Cron;
 }());

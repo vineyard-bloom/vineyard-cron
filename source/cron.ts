@@ -28,6 +28,7 @@ export class Cron {
   private interval: number
   private status: Status = Status.inactive
   private errorLogger: CronErrorLogger
+  private isWorking: boolean = false
 
   constructor(tasks: Task[], interval: number = 30000, errorLogger: CronErrorLogger = new DefaultErrorLogger()) {
     this.tasks = tasks;
@@ -44,7 +45,9 @@ export class Cron {
   }
 
   private update(): Promise<any> {
+    this.isWorking = true
     return promiseEach(this.tasks, task => this.runTask(task))
+      .then(() => this.isWorking = false)
   }
 
   start() {
@@ -71,8 +74,26 @@ export class Cron {
     this.status = Status.running
   }
 
-  stop() {
-    this.status = Status.stopping
+  stop(): Promise<void> {
+    if (!this.isWorking) {
+      this.status = Status.inactive
+      return Promise.resolve()
+    }
+    else {
+      this.status = Status.stopping
+      return new Promise<void>((resolve, reject) => {
+        const poll = () => {
+          if (this.status == Status.inactive) {
+            resolve()
+          }
+          else {
+            setTimeout(poll, 100)
+          }
+        }
+
+        poll()
+      })
+    }
   }
 
 }

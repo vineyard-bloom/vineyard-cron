@@ -11,9 +11,10 @@ export declare class Cron {
     private interval;
     private status;
     private errorLogger;
+    private isWorking;
     constructor(tasks: Task[], interval?: number, errorLogger?: CronErrorLogger);
     private runTask(task);
     private update();
     start(): void;
-    stop(): void;
+    stop(): Promise<void>;
 }
