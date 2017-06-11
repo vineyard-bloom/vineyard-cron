@@ -16,5 +16,7 @@ export declare class Cron {
     private runTask(task);
     private update();
     start(): void;
+    onceNotWorking(action: any): Promise<void>;
+    forceUpdate(): Promise<void>;
     stop(): Promise<void>;
 }

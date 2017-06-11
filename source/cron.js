@@ -60,26 +60,33 @@ var Cron = (function () {
         update();
         this.status = Status.running;
     };
-    Cron.prototype.stop = function () {
+    Cron.prototype.onceNotWorking = function (action) {
         var _this = this;
         if (!this.isWorking) {
-            this.status = Status.inactive;
-            return Promise.resolve();
+            var result = action();
+            return result && typeof result.then === 'function'
+                ? result
+                : Promise.resolve();
         }
-        else {
-            this.status = Status.stopping;
-            return new Promise(function (resolve, reject) {
-                var poll = function () {
-                    if (_this.status == Status.inactive) {
-                        resolve();
-                    }
-                    else {
-                        setTimeout(poll, 100);
-                    }
-                };
-                poll();
-            });
-        }
+        return new Promise(function (resolve, reject) {
+            var poll = function () {
+                if (!_this.isWorking) {
+                    resolve(action());
+                }
+                else {
+                    setTimeout(poll, 50);
+                }
+            };
+            poll();
+        });
+    };
+    Cron.prototype.forceUpdate = function () {
+        var _this = this;
+        return this.onceNotWorking(function () { return _this.update(); });
+    };
+    Cron.prototype.stop = function () {
+        var _this = this;
+        return this.onceNotWorking(function () { return _this.status = Status.inactive; });
     };
     return Cron;
 }());

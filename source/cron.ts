@@ -74,26 +74,34 @@ export class Cron {
     this.status = Status.running
   }
 
-  stop(): Promise<void> {
+  onceNotWorking(action): Promise<void> {
     if (!this.isWorking) {
-      this.status = Status.inactive
-      return Promise.resolve()
+      const result = action()
+      return result && typeof result.then === 'function'
+        ? result
+        : Promise.resolve()
     }
-    else {
-      this.status = Status.stopping
-      return new Promise<void>((resolve, reject) => {
-        const poll = () => {
-          if (this.status == Status.inactive) {
-            resolve()
-          }
-          else {
-            setTimeout(poll, 100)
-          }
-        }
 
-        poll()
-      })
-    }
+    return new Promise<void>((resolve, reject) => {
+      const poll = () => {
+        if (!this.isWorking) {
+          resolve(action())
+        }
+        else {
+          setTimeout(poll, 50)
+        }
+      }
+
+      poll()
+    })
+  }
+
+  forceUpdate(): Promise<void> {
+    return this.onceNotWorking(() => this.update())
+  }
+
+  stop(): Promise<void> {
+    return this.onceNotWorking(() => this.status = Status.inactive)
   }
 
 }
