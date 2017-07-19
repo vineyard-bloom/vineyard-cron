@@ -29,6 +29,10 @@ var Cron = (function () {
         var _this = this;
         return task.action()
             .catch(function (error) {
+            if (typeof error === 'string')
+                error = new Error(error);
+            else if (!error || typeof error !== 'object')
+                error = new Error();
             error.message = "Error during task '" + task.name + "': " + error.message;
             _this.errorLogger.logError(error);
         });
