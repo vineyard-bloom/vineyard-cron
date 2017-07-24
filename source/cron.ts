@@ -43,7 +43,7 @@ export class Cron {
           error = new Error(error)
         else if (!error || typeof error !== 'object')
           error = new Error()
-        
+
         error.message = "Error during task '" + task.name + "': " + error.message
         this.errorLogger.logError(error)
       })
