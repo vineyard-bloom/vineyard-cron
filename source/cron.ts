@@ -37,16 +37,22 @@ export class Cron {
   }
 
   private runTask(task: Task) {
-    return task.action()
-      .catch(error => {
-        if (typeof error === 'string')
-          error = new Error(error)
-        else if (!error || typeof error !== 'object')
-          error = new Error()
+    const result = task.action()
+    if (result && result.catch && result.then) {
+      return result
+        .catch(error => {
+          if (typeof error === 'string')
+            error = new Error(error)
+          else if (!error || typeof error !== 'object')
+            error = new Error()
 
-        error.message = "Error during task '" + task.name + "': " + error.message
-        this.errorLogger.logError(error)
-      })
+          error.message = "Error during task '" + task.name + "': " + error.message
+          this.errorLogger.logError(error)
+        })
+    }
+    else {
+      return Promise.resolve()
+    }
   }
 
   private update(): Promise<any> {

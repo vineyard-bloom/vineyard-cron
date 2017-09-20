@@ -27,15 +27,21 @@ var Cron = (function () {
     }
     Cron.prototype.runTask = function (task) {
         var _this = this;
-        return task.action()
-            .catch(function (error) {
-            if (typeof error === 'string')
-                error = new Error(error);
-            else if (!error || typeof error !== 'object')
-                error = new Error();
-            error.message = "Error during task '" + task.name + "': " + error.message;
-            _this.errorLogger.logError(error);
-        });
+        var result = task.action();
+        if (result && result.catch && result.then) {
+            return result
+                .catch(function (error) {
+                if (typeof error === 'string')
+                    error = new Error(error);
+                else if (!error || typeof error !== 'object')
+                    error = new Error();
+                error.message = "Error during task '" + task.name + "': " + error.message;
+                _this.errorLogger.logError(error);
+            });
+        }
+        else {
+            return Promise.resolve();
+        }
     };
     Cron.prototype.update = function () {
         var _this = this;
