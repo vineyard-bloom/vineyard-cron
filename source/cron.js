@@ -27,21 +27,15 @@ var Cron = (function () {
     }
     Cron.prototype.runTask = function (task) {
         var _this = this;
-        var result = task.action();
-        if (result && result.catch && result.then) {
-            return result
-                .catch(function (error) {
-                if (typeof error === 'string')
-                    error = new Error(error);
-                else if (!error || typeof error !== 'object')
-                    error = new Error();
-                error.message = "Error during task '" + task.name + "': " + error.message;
-                _this.errorLogger.logError(error);
-            });
-        }
-        else {
-            return Promise.resolve();
-        }
+        return Promise.resolve().then(function () { return task.action(); })
+            .catch(function (error) {
+            if (typeof error === 'string')
+                error = new Error(error);
+            else if (!error || typeof error !== 'object')
+                error = new Error();
+            error.message = "Error during task '" + task.name + "': " + error.message;
+            _this.errorLogger.logError(error);
+        });
     };
     Cron.prototype.update = function () {
         var _this = this;
@@ -52,7 +46,7 @@ var Cron = (function () {
     Cron.prototype.start = function () {
         var _this = this;
         if (this.status != Status.inactive)
-            throw new Error(name + " is already running.");
+            throw new Error("Cron is already running.");
         var loop = function () {
             if (_this.status == Status.stopping)
                 _this.status = Status.inactive;
@@ -96,7 +90,9 @@ var Cron = (function () {
     };
     Cron.prototype.stop = function () {
         var _this = this;
-        return this.onceNotWorking(function () { return _this.status = Status.inactive; });
+        return this.onceNotWorking(function () {
+            _this.status = Status.inactive;
+        });
     };
     return Cron;
 }());

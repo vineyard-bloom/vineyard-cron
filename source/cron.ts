@@ -6,7 +6,7 @@ enum Status {
   stopping,
 }
 
-export type Action = () => Promise<any>
+export type Action = () => Promise<any> | void
 
 export interface Task {
   name: string
@@ -14,11 +14,11 @@ export interface Task {
 }
 
 export interface CronErrorLogger {
-  logError(error): Promise<any> | void
+  logError(error: Error): Promise<any> | void
 }
 
 class DefaultErrorLogger implements CronErrorLogger {
-  logError(error) {
+  logError(error: Error) {
     console.error(error.stack || error.message)
   }
 }
@@ -37,33 +37,27 @@ export class Cron {
   }
 
   private runTask(task: Task) {
-    const result = task.action()
-    if (result && result.catch && result.then) {
-      return result
-        .catch(error => {
-          if (typeof error === 'string')
-            error = new Error(error)
-          else if (!error || typeof error !== 'object')
-            error = new Error()
+    return Promise.resolve().then(() => task.action())
+      .catch(error => {
+        if (typeof error === 'string')
+          error = new Error(error)
+        else if (!error || typeof error !== 'object')
+          error = new Error()
 
-          error.message = "Error during task '" + task.name + "': " + error.message
-          this.errorLogger.logError(error)
-        })
-    }
-    else {
-      return Promise.resolve()
-    }
+        error.message = "Error during task '" + task.name + "': " + error.message
+        this.errorLogger.logError(error)
+      })
   }
 
   private update(): Promise<any> {
     this.isWorking = true
-    return promiseEach(this.tasks, task => this.runTask(task))
+    return promiseEach(this.tasks, (task: Task) => this.runTask(task))
       .then(() => this.isWorking = false)
   }
 
   start() {
     if (this.status != Status.inactive)
-      throw new Error(name + " is already running.");
+      throw new Error("Cron is already running.");
 
     const loop = () => {
       if (this.status == Status.stopping)
@@ -85,7 +79,7 @@ export class Cron {
     this.status = Status.running
   }
 
-  onceNotWorking(action): Promise<void> {
+  onceNotWorking(action: Action): Promise<void> {
     if (!this.isWorking) {
       const result = action()
       return result && typeof result.then === 'function'
@@ -112,7 +106,9 @@ export class Cron {
   }
 
   stop(): Promise<void> {
-    return this.onceNotWorking(() => this.status = Status.inactive)
+    return this.onceNotWorking(() => {
+      this.status = Status.inactive
+    })
   }
 
 }

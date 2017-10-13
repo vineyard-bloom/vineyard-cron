@@ -1,10 +1,10 @@
-export declare type Action = () => Promise<any>;
+export declare type Action = () => Promise<any> | void;
 export interface Task {
     name: string;
     action: Action;
 }
 export interface CronErrorLogger {
-    logError(error: any): Promise<any> | void;
+    logError(error: Error): Promise<any> | void;
 }
 export declare class Cron {
     private tasks;
@@ -16,7 +16,7 @@ export declare class Cron {
     private runTask(task);
     private update();
     start(): void;
-    onceNotWorking(action: any): Promise<void>;
+    onceNotWorking(action: Action): Promise<void>;
     forceUpdate(): Promise<void>;
     stop(): Promise<void>;
 }
