@@ -1,4 +1,4 @@
-import {Cron, CronConfigOutput} from "../../source/cron";
+import {Cron, CronConfig} from "../../source/cron";
 import {assert, expect} from 'chai'
 
 require('source-map-support').install()
@@ -10,7 +10,7 @@ describe('a working cron', function () {
     let step = 0
     const cron = new Cron([{
       name: "",
-      action: (config: CronConfigOutput) => {
+      action: (config: CronConfig) => {
         console.log(step, config.interval)
         intervals.push(config.interval)
         if (step++ >= 5) {

@@ -6,17 +6,17 @@ enum Status {
   stopping,
 }
 
-export interface CronConfigOutput {
+export interface CronConfig {
   interval: number
 }
 
-export interface CronConfigInput {
+export interface CronConfigChange {
   interval?: number,
   active?: boolean
 }
 
 export type OldAction = () => Promise<any> | void
-export type NewAction = (config: CronConfigOutput) => Promise<CronConfigInput> | void
+export type NewAction = (config: CronConfig) => Promise<CronConfigChange> | void
 export type Action = NewAction | OldAction
 export type SimpleAction = () => Promise<any> | void
 
@@ -50,7 +50,7 @@ export class Cron {
 
   private runTask(task: Task) {
     return Promise.resolve().then(() => (task.action as any)({interval: this.interval}))
-      .then((adjustment: CronConfigInput | undefined) => {
+      .then((adjustment: CronConfigChange | undefined) => {
         if (adjustment && typeof adjustment === 'object') {
           if (typeof adjustment.interval === 'number') {
             this.interval = adjustment.interval

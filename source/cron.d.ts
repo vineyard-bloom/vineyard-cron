@@ -1,12 +1,12 @@
-export interface CronConfigOutput {
+export interface CronConfig {
     interval: number;
 }
-export interface CronConfigInput {
+export interface CronConfigChange {
     interval?: number;
     active?: boolean;
 }
 export declare type OldAction = () => Promise<any> | void;
-export declare type NewAction = (config: CronConfigOutput) => Promise<CronConfigInput> | void;
+export declare type NewAction = (config: CronConfig) => Promise<CronConfigChange> | void;
 export declare type Action = NewAction | OldAction;
 export declare type SimpleAction = () => Promise<any> | void;
 export interface Task {
