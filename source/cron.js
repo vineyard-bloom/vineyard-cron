@@ -7,7 +7,7 @@ var Status;
     Status[Status["running"] = 1] = "running";
     Status[Status["stopping"] = 2] = "stopping";
 })(Status || (Status = {}));
-var DefaultErrorLogger = (function () {
+var DefaultErrorLogger = /** @class */ (function () {
     function DefaultErrorLogger() {
     }
     DefaultErrorLogger.prototype.logError = function (error) {
@@ -15,7 +15,7 @@ var DefaultErrorLogger = (function () {
     };
     return DefaultErrorLogger;
 }());
-var Cron = (function () {
+var Cron = /** @class */ (function () {
     function Cron(tasks, interval, errorLogger) {
         if (interval === void 0) { interval = 30000; }
         if (errorLogger === void 0) { errorLogger = new DefaultErrorLogger(); }
@@ -27,7 +27,17 @@ var Cron = (function () {
     }
     Cron.prototype.runTask = function (task) {
         var _this = this;
-        return Promise.resolve().then(function () { return task.action(); })
+        return Promise.resolve().then(function () { return task.action({ interval: _this.interval }); })
+            .then(function (adjustment) {
+            if (adjustment && typeof adjustment === 'object') {
+                if (typeof adjustment.interval === 'number') {
+                    _this.interval = adjustment.interval;
+                }
+                if (typeof adjustment.active === 'boolean') {
+                    _this.status = Status.inactive;
+                }
+            }
+        })
             .catch(function (error) {
             if (typeof error === 'string')
                 error = new Error(error);

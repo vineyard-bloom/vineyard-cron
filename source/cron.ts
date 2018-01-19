@@ -6,7 +6,19 @@ enum Status {
   stopping,
 }
 
-export type Action = () => Promise<any> | void
+export interface CronConfigOutput {
+  interval: number
+}
+
+export interface CronConfigInput {
+  interval?: number,
+  active?: boolean
+}
+
+export type OldAction = () => Promise<any> | void
+export type NewAction = (config: CronConfigOutput) => Promise<CronConfigInput> | void
+export type Action = NewAction | OldAction
+export type SimpleAction = () => Promise<any> | void
 
 export interface Task {
   name: string
@@ -37,7 +49,17 @@ export class Cron {
   }
 
   private runTask(task: Task) {
-    return Promise.resolve().then(() => task.action())
+    return Promise.resolve().then(() => (task.action as any)({interval: this.interval}))
+      .then((adjustment: CronConfigInput | undefined) => {
+        if (adjustment && typeof adjustment === 'object') {
+          if (typeof adjustment.interval === 'number') {
+            this.interval = adjustment.interval
+          }
+          if (typeof adjustment.active === 'boolean') {
+            this.status = Status.inactive
+          }
+        }
+      })
       .catch(error => {
         if (typeof error === 'string')
           error = new Error(error)
@@ -79,7 +101,7 @@ export class Cron {
     this.status = Status.running
   }
 
-  onceNotWorking(action: Action): Promise<void> {
+  onceNotWorking(action: SimpleAction): Promise<void> {
     if (!this.isWorking) {
       const result = action()
       return result && typeof result.then === 'function'

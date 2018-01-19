@@ -15,6 +15,10 @@
   },
   "devDependencies": {
     "@types/node": "^7.0.5",
-    "source-map-support": "^0.4.14"
+    "source-map-support": "^0.4.14",
+    "@types/chai": "^4.0.4",
+    "@types/mocha": "^2.2.40",
+    "chai": "^4.1.2",
+    "mocha": "^3.2.0"
   }
 }
