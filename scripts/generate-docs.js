@@ -7,10 +7,10 @@ vineyard_docs_1.generateDocs({
         name: 'Vineyard Cron Documentation'
     },
     paths: {
-        src: ['source'],
-        content: 'source/doc',
-        output: 'doc',
-        tsconfig: './tsconfig.json',
+        src: ['../source'],
+        content: '../source/doc',
+        output: '../doc',
+        tsconfig: '../tsconfig.json',
     }
 });
 //# sourceMappingURL=generate-docs.js.map

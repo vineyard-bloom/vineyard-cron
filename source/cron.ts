@@ -77,6 +77,9 @@ export class Cron {
       .then(() => this.isWorking = false)
   }
 
+  /**
+   * Begins the Cron.
+   */
   start() {
     if (this.status != Status.inactive)
       throw new Error("Cron is already running.");
@@ -101,6 +104,9 @@ export class Cron {
     this.status = Status.running
   }
 
+  /**
+   * Upon failure, tests whether the Cron can perform a simple action.
+   */
   onceNotWorking(action: SimpleAction): Promise<void> {
     if (!this.isWorking) {
       const result = action()
@@ -123,10 +129,16 @@ export class Cron {
     })
   }
 
+  /**
+   * Restarts the Cron.
+   */
   forceUpdate(): Promise<void> {
     return this.onceNotWorking(() => this.update())
   }
 
+  /**
+   * Stops the Cron.
+   */
   stop(): Promise<void> {
     return this.onceNotWorking(() => {
       this.status = Status.inactive

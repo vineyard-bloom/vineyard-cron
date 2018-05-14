@@ -6,9 +6,9 @@ generateDocs({
     name: 'Vineyard Cron Documentation'
   },
   paths: {
-    src: ['source'],
-    content: 'source/doc',
-    output: 'doc',
-    tsconfig: './tsconfig.json',
+    src: ['../source'],
+    content: '../source/doc',
+    output: '../doc',
+    tsconfig: '../tsconfig.json',
   }
 })
