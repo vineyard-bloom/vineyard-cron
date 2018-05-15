@@ -4,12 +4,23 @@ The Cron library provides functionality for long-running, repetitive Node.js ser
 
 ## Example Usage
 
-    (placeholder code)
-    const tasks = [ { 'A function', aFunction() }, { 'Another function', anotherFunction() } ]
-    const cron = new Cron({tasks, 50000})
-    cron.start()
-    cron.forceUpdate()
-    cron.stop()
+    import {Cron} from 'vineyard-cron'
+
+    const simpleCron = new Cron([
+      {
+        name: 'Example Action',
+        action: () => exampleFunction()
+      }
+    ]
+    simpleCron.start()
+
+    const customCron = new Cron([
+      {
+        name: 'Example Action',
+        action: () => exampleFunction()
+      }
+    ], 60000, customErrorLogger())
+    customCron.start()
 
 ## Cron `class`
 
