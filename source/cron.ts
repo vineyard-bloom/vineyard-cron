@@ -77,6 +77,9 @@ export class Cron {
       .then(() => this.isWorking = false)
   }
 
+  /**
+   * Begins the Cron.
+   */
   start() {
     if (this.status != Status.inactive)
       throw new Error("Cron is already running.");
@@ -101,6 +104,10 @@ export class Cron {
     this.status = Status.running
   }
 
+  /**
+   * @hidden
+   * Deprecated. Event handler for next time the Cron is idle.
+   */
   onceNotWorking(action: SimpleAction): Promise<void> {
     if (!this.isWorking) {
       const result = action()
@@ -123,10 +130,17 @@ export class Cron {
     })
   }
 
+  /**
+   * @hidden
+   * Deprecated. Triggers an update before the normal interval.
+   */
   forceUpdate(): Promise<void> {
     return this.onceNotWorking(() => this.update())
   }
 
+  /**
+   * Stops the Cron.
+   */
   stop(): Promise<void> {
     return this.onceNotWorking(() => {
       this.status = Status.inactive

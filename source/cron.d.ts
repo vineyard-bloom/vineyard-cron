@@ -25,8 +25,20 @@ export declare class Cron {
     constructor(tasks: Task[], interval?: number, errorLogger?: CronErrorLogger);
     private runTask(task);
     private update();
+    /**
+     * Begins the Cron.
+     */
     start(): void;
+    /**
+     * Upon failure, tests whether the Cron can perform a simple action.
+     */
     onceNotWorking(action: SimpleAction): Promise<void>;
+    /**
+     * Restarts the Cron.
+     */
     forceUpdate(): Promise<void>;
+    /**
+     * Stops the Cron.
+     */
     stop(): Promise<void>;
 }

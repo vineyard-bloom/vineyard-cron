@@ -53,6 +53,9 @@ var Cron = /** @class */ (function () {
         return promise_each2_1.each(this.tasks, function (task) { return _this.runTask(task); })
             .then(function () { return _this.isWorking = false; });
     };
+    /**
+     * Begins the Cron.
+     */
     Cron.prototype.start = function () {
         var _this = this;
         if (this.status != Status.inactive)
@@ -74,6 +77,9 @@ var Cron = /** @class */ (function () {
         update();
         this.status = Status.running;
     };
+    /**
+     * Upon failure, tests whether the Cron can perform a simple action.
+     */
     Cron.prototype.onceNotWorking = function (action) {
         var _this = this;
         if (!this.isWorking) {
@@ -94,10 +100,16 @@ var Cron = /** @class */ (function () {
             poll();
         });
     };
+    /**
+     * Restarts the Cron.
+     */
     Cron.prototype.forceUpdate = function () {
         var _this = this;
         return this.onceNotWorking(function () { return _this.update(); });
     };
+    /**
+     * Stops the Cron.
+     */
     Cron.prototype.stop = function () {
         var _this = this;
         return this.onceNotWorking(function () {
