@@ -46,3 +46,12 @@ Stops the Cron.
 
 Returns `Promise`
 
+
+## Task `interface`
+A task is an object containing a name and an action.
+
+
+#### Properties
+
+* action `Action` 
+* name `string` 
