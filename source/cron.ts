@@ -105,7 +105,8 @@ export class Cron {
   }
 
   /**
-   * Upon failure, tests whether the Cron can perform a simple action.
+   * @hidden
+   * Deprecated. Event handler for next time the Cron is idle.
    */
   onceNotWorking(action: SimpleAction): Promise<void> {
     if (!this.isWorking) {
@@ -130,7 +131,8 @@ export class Cron {
   }
 
   /**
-   * Restarts the Cron.
+   * @hidden
+   * Deprecated. Triggers an update before the normal interval.
    */
   forceUpdate(): Promise<void> {
     return this.onceNotWorking(() => this.update())

@@ -11,7 +11,7 @@ The Cron library provides functionality for long-running, repetitive Node.js ser
         name: 'Example Action',
         action: () => exampleFunction()
       }
-    ]
+    ])
     simpleCron.start()
 
     const customCron = new Cron([
@@ -19,7 +19,7 @@ The Cron library provides functionality for long-running, repetitive Node.js ser
         name: 'Example Action',
         action: () => exampleFunction()
       }
-    ], 60000, customErrorLogger())
+    ], 60000, customErrorLogger)
     customCron.start()
 
 ## Cron `class`
@@ -35,20 +35,6 @@ Parameters
 Returns `Cron`
 
 #### Functions
-
-##### `forceUpdate`
-Restarts the Cron.
-
-Returns `Promise`
-
-##### `onceNotWorking`
-Upon failure, tests whether the Cron can perform a simple action.
-
-Parameters
-
-*  action `SimpleAction` 
-
-Returns `Promise`
 
 ##### `start`
 Begins the Cron.
